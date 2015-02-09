@@ -8,9 +8,19 @@ import (
 
 const WindowSize = 400
 
+var prompts = []*Prompt{
+	NewPrompt("The quick brown fox jumps over the lazy dog."),
+	NewPrompt("Pack my box with five dozen liquor jugs."),
+}
+var currentPrompt = 0
+
 func drawCanvas(c gogui.DrawContext) {
+	// Draw a white backdrop
 	c.SetFill(gogui.Color{1, 1, 1, 1})
 	c.FillRect(gogui.Rect{0, 0, WindowSize, WindowSize})
+	
+	// Draw the prompt
+	prompts[currentPrompt].Draw(c, WindowSize)
 }
 
 func main() {
@@ -47,5 +57,13 @@ func setup() {
 	
 	canvas.NeedsUpdate()
 	
-	// TODO: here, setup key listeners, etc.
+	window.SetKeyPressHandler(func(e gogui.KeyEvent) {
+		p := prompts[currentPrompt]
+		p.HandleKey(e)
+		if p.Complete() {
+			p.Reset()
+			currentPrompt = (currentPrompt+1) % len(prompts)
+		}
+		canvas.NeedsUpdate()
+	})
 }
