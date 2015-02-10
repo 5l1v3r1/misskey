@@ -25,14 +25,16 @@ func (p *Prompt) Complete() bool {
 }
 
 // Draw draws the prompt in a context.
-func (p *Prompt) Draw(c gogui.DrawContext, width float64) {
+func (p *Prompt) Draw(c gogui.DrawContext, maxWidth float64) {
 	c.SetFont(18, "Helvetica")
-	x := float64(10)
-	y := float64(10)
-	lineHeight := float64(25)
+
+	var x, y float64 = 10, 10
+	const lineHeight = 25
+	const cursorHeight = 20
+
 	for i, word := range p.Words {
 		w := WordWidth(c, word)
-		if x+w+10 > width {
+		if x+w+10 > maxWidth {
 			x = 10
 			y += lineHeight
 		}
@@ -44,8 +46,20 @@ func (p *Prompt) Draw(c gogui.DrawContext, width float64) {
 				c.SetFill(gogui.Color{0.5, 0.5, 0.5, 1})
 			}
 			c.FillText(string(ch), x, y)
-			charWidth, _ := c.TextSize(string(ch))
-			x += charWidth
+			width, _ := c.TextSize(string(ch))
+
+			if i == p.WordsDone && j == p.RunesDone {
+				// Draw a cursor.
+				c.SetFill(gogui.Color{0, 0, 0, 1})
+				c.FillRect(gogui.Rect{x, y, 2, cursorHeight})
+			}
+
+			x += width
+		}
+		if i == p.WordsDone && p.RunesDone == len([]rune(word)) {
+			// Draw a cursor.
+			c.SetFill(gogui.Color{0, 0, 0, 1})
+			c.FillRect(gogui.Rect{x, y, 2, cursorHeight})
 		}
 		x += 10
 	}
@@ -54,7 +68,7 @@ func (p *Prompt) Draw(c gogui.DrawContext, width float64) {
 // HandleKey should be called to check a key press against the prompt.
 func (p *Prompt) HandleKey(c gogui.KeyEvent) {
 	currentRunes := []rune(p.Words[p.WordsDone])
-	
+
 	// If they are at the end of the word, they must hit space.
 	if len(currentRunes) == p.RunesDone {
 		if c.CharCode != 0x20 {
@@ -65,7 +79,7 @@ func (p *Prompt) HandleKey(c gogui.KeyEvent) {
 		}
 		return
 	}
-	
+
 	expecting := currentRunes[p.RunesDone]
 	if int(expecting) != c.CharCode {
 		p.Reset()
