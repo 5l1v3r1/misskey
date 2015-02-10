@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/unixpickle/gogui"
 	"os"
+	"strconv"
 )
 
 const WindowSize = 400
@@ -13,6 +14,7 @@ var prompts = []*Prompt{
 	NewPrompt("Pack my box with five dozen liquor jugs."),
 }
 var currentPrompt = 0
+var mistakeCount = 0
 
 func drawCanvas(c gogui.DrawContext) {
 	// Draw a white backdrop
@@ -21,6 +23,11 @@ func drawCanvas(c gogui.DrawContext) {
 	
 	// Draw the prompt
 	prompts[currentPrompt].Draw(c, WindowSize)
+	
+	// Draw the number of mistakes
+	c.SetFont(18, "Helvetica")
+	c.SetFill(gogui.Color{0, 0, 0, 1})
+	c.FillText("Mistakes: "+strconv.Itoa(mistakeCount), 10, WindowSize-30)
 }
 
 func main() {
@@ -59,7 +66,9 @@ func setup() {
 	
 	window.SetKeyPressHandler(func(e gogui.KeyEvent) {
 		p := prompts[currentPrompt]
-		p.HandleKey(e)
+		if !p.HandleKey(e) {
+			mistakeCount++
+		}
 		if p.Complete() {
 			p.Reset()
 			currentPrompt = (currentPrompt+1) % len(prompts)

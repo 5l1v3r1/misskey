@@ -75,26 +75,29 @@ func (p *Prompt) Draw(c gogui.DrawContext, maxWidth float64) {
 }
 
 // HandleKey should be called to check a key press against the prompt.
-func (p *Prompt) HandleKey(c gogui.KeyEvent) {
+// Returns false if the prompt was reset because the user hit the wrong key.
+func (p *Prompt) HandleKey(c gogui.KeyEvent) bool {
 	currentRunes := []rune(p.Words[p.WordsDone])
 
 	// If they are at the end of the word, they must hit space.
 	if len(currentRunes) == p.RunesDone {
 		if c.CharCode != 0x20 {
 			p.Reset()
+			return false
 		} else {
 			p.WordsDone++
 			p.RunesDone = 0
+			return true
 		}
-		return
 	}
 
 	expecting := currentRunes[p.RunesDone]
 	if int(expecting) != c.CharCode {
 		p.Reset()
-		return
+		return false
 	}
 	p.RunesDone++
+	return true
 }
 
 // Reset resets the prompt to have nothing completed.
