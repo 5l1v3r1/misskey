@@ -12,9 +12,16 @@ const WindowSize = 400
 var prompts = []*Prompt{
 	NewPrompt("The quick brown fox jumps over the lazy dog."),
 	NewPrompt("Pack my box with five dozen liquor jugs."),
+	NewPrompt("We promptly judged antique ivory buckles for the next prize."),
+	NewPrompt("Sixty zippers were quickly picked from the woven jute bag."),
+	NewPrompt("Crazy Fredrick bought many very exquisite opal jewels."),
+	NewPrompt("Jump by vow of quick, lazy strength in Oxford."),
+	NewPrompt("The five boxing wizards jump quickly."),
 }
 var currentPrompt = 0
 var mistakeCount = 0
+var correctCount = 0
+var instructions = "Type & don't make mistakes"
 
 func drawCanvas(c gogui.DrawContext) {
 	// Draw a white backdrop
@@ -24,10 +31,14 @@ func drawCanvas(c gogui.DrawContext) {
 	// Draw the prompt
 	prompts[currentPrompt].Draw(c, WindowSize)
 	
-	// Draw the number of mistakes
-	c.SetFont(18, "Helvetica")
+	// Draw stats and instructions
 	c.SetFill(gogui.Color{0, 0, 0, 1})
+	c.SetFont(18, "Helvetica")
+	w, _ := c.TextSize(instructions)
+	c.FillText(instructions, (WindowSize-w)/2, WindowSize-120)
+	c.SetFont(16, "Helvetica")
 	c.FillText("Mistakes: "+strconv.Itoa(mistakeCount), 10, WindowSize-30)
+	c.FillText("Correct: "+strconv.Itoa(correctCount), 10, WindowSize-60)
 }
 
 func main() {
@@ -68,6 +79,8 @@ func setup() {
 		p := prompts[currentPrompt]
 		if !p.HandleKey(e) {
 			mistakeCount++
+		} else {
+			correctCount++
 		}
 		if p.Complete() {
 			p.Reset()

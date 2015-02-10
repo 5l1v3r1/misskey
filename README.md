@@ -21,7 +21,4 @@ To run misskey itself, you should change to the misskey directory and run it lik
 
 # TODO
 
- * Add a cursor underneath the current letter.
- * Add some on-screen instructions
- * Display the number of correct and incorrect letters they have typed.
  * Possibly display their WPM
