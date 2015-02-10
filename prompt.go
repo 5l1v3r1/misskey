@@ -29,12 +29,17 @@ func (p *Prompt) Draw(c gogui.DrawContext, maxWidth float64) {
 	c.SetFont(18, "Helvetica")
 
 	var x, y float64 = 10, 10
-	const lineHeight = 25
+	const lineHeight = 30
 	const cursorHeight = 20
+	const separatorOffset = 27
 
 	for i, word := range p.Words {
 		w := WordWidth(c, word)
 		if x+w+10 > maxWidth {
+			// Draw a separator line
+			c.SetFill(gogui.Color{0, 0, 0, 1})
+			c.FillRect(gogui.Rect{10, y+separatorOffset, maxWidth-20, 1})
+			
 			x = 10
 			y += lineHeight
 		}
@@ -63,6 +68,10 @@ func (p *Prompt) Draw(c gogui.DrawContext, maxWidth float64) {
 		}
 		x += 10
 	}
+	
+	// Draw a separator line
+	c.SetFill(gogui.Color{0, 0, 0, 1})
+	c.FillRect(gogui.Rect{10, y+separatorOffset, maxWidth-20, 1})
 }
 
 // HandleKey should be called to check a key press against the prompt.
